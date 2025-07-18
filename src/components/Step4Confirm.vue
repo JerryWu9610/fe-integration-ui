@@ -21,53 +21,55 @@
       </el-form-item>
     </el-form>
 
-    <div v-if="fullIntegrationBaselineBranch && commitChanges.length > 0" class="commit-changes">
-      <h3>业务仓库变更对比：</h3>
-      <el-collapse v-model="activeCollapse">
-        <el-collapse-item
-          v-for="change in commitChanges"
-          :key="change.repoName"
-          :title="change.repoName"
-          :name="change.repoName"
-        >
-          <div v-if="change.newCommits && change.newCommits.length > 0">
-            <h4>新增提交:</h4>
-            <ul>
-              <li v-for="commit in change.newCommits" :key="commit.short_id">
-                <code>{{ commit.short_id }}</code> - {{ commit.title }} ({{
-                  commit.author_name
-                }})
-              </li>
-            </ul>
-          </div>
-          <div
-            v-if="change.removedCommits && change.removedCommits.length > 0"
-          >
-            <h4>移除提交:</h4>
-            <ul>
-              <li
-                v-for="commit in change.removedCommits"
-                :key="commit.short_id"
+    <div v-if="fullIntegrationBaselineBranch" class="commit-changes" v-loading="changesLoading">
+      <div v-if="!changesLoading">
+        <div v-if="commitChanges.length > 0">
+          <h3>业务仓库变更对比：</h3>
+          <el-collapse v-model="activeCollapse">
+            <el-collapse-item
+              v-for="change in commitChanges"
+              :key="change.repoName"
+              :title="change.repoName"
+              :name="change.repoName"
+            >
+              <div v-if="change.newCommits && change.newCommits.length > 0">
+                <h4>新增提交:</h4>
+                <ul>
+                  <li v-for="commit in change.newCommits" :key="commit.short_id">
+                    <code>{{ commit.short_id }}</code> - {{ commit.title }} ({{
+                      commit.author_name
+                    }})
+                  </li>
+                </ul>
+              </div>
+              <div
+                v-if="change.removedCommits && change.removedCommits.length > 0"
               >
-                <code>{{ commit.short_id }}</code> - {{ commit.title }} ({{
-                  commit.author_name
-                }})
-              </li>
-            </ul>
-          </div>
-          <div
-            v-if="
-              (!change.newCommits || change.newCommits.length === 0) &&
-              (!change.removedCommits || change.removedCommits.length === 0)
-            "
-          >
-            <p>没有变更。</p>
-          </div>
-        </el-collapse-item>
-      </el-collapse>
-    </div>
-    <div v-if="fullIntegrationBaselineBranch && !commitChanges.length" class="commit-changes">
-        <p>未检测到业务仓库的 Commit 变更。</p>
+                <h4>移除提交:</h4>
+                <ul>
+                  <li
+                    v-for="commit in change.removedCommits"
+                    :key="commit.short_id"
+                  >
+                    <code>{{ commit.short_id }}</code> - {{ commit.title }} ({{
+                      commit.author_name
+                    }})
+                  </li>
+                </ul>
+              </div>
+              <div
+                v-if="
+                  (!change.newCommits || change.newCommits.length === 0) &&
+                  (!change.removedCommits || change.removedCommits.length === 0)
+                "
+              >
+                <p>没有变更。</p>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
+        <p v-else>未检测到业务仓库的 Commit 变更。</p>
+      </div>
     </div>
 
 
@@ -104,6 +106,7 @@ const fullIntegrationBranches = ref<{ name: string; protected: boolean }[]>([]);
 const branchSearchLoading = ref(false);
 const commitChanges = ref<RepoChanges[]>([]);
 const activeCollapse = ref<string[]>([]);
+const changesLoading = ref(false);
 
 const searchFullIntegrationBranches = async (query: string) => {
   if (!query) {
@@ -126,6 +129,7 @@ const fetchCommitChanges = async (baselineBranch: string) => {
     commitChanges.value = [];
     return;
   }
+  changesLoading.value = true;
   try {
     // 1. 根据整包基线分支获取前端集成的 commitId
     const { version: fromCommit } = await getFullIntegrationRepoInfo({
@@ -146,6 +150,8 @@ const fetchCommitChanges = async (baselineBranch: string) => {
     activeCollapse.value = changes.map((c) => c.repoName); // 默认展开所有
   } catch (error) {
     console.error('获取变更对比失败', error);
+  } finally {
+    changesLoading.value = false;
   }
 };
 
@@ -192,6 +198,7 @@ const submitIntegration = async () => {
 }
 .commit-changes {
   margin-top: 20px;
+  min-height: 100px;
 }
 .footer-buttons {
   text-align: center;
