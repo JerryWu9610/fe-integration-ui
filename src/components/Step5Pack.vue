@@ -2,12 +2,8 @@
   <div class="step-5-pack">
     <div class="packing-status">
       <h3>打包状态</h3>
-      <el-progress
-        :percentage="packingProgress.percentage"
-        :status="packingProgress.status"
-      />
       <div class="stages">
-        <el-steps :active="activeStage" direction="vertical">
+        <el-steps :active="activeStage">
           <el-step
             v-for="stage in packingStages"
             :key="stage.name"
@@ -18,57 +14,70 @@
       </div>
     </div>
 
-    <el-divider />
+    <template v-if="fullIntegrationBaselineBranch">
+      <el-divider />
 
-    <div class="merge-request-form">
-      <h3>提交合并请求</h3>
-      <el-form label-width="120px" :disabled="isFormDisabled">
-        <el-form-item label="目标分支" :error="targetBranchError">
-          <el-input
-            v-model="fullIntegrationTargetBranch"
-            placeholder="请输入目标分支名称"
-            @input="debouncedCheckBranch"
-          >
-            <template #suffix>
-              <el-icon v-if="isCheckingBranch" class="is-loading">
-                <Loading />
-              </el-icon>
-            </template>
-            <template #append>
-              <el-button v-if="!fullIntegrationTargetBranch" @click="fillFromBaseline">使用基线分支</el-button>
-              <el-button v-if="targetBranchExists" @click="handleDeleteBranch" type="danger" plain>删除</el-button>
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="MR 描述">
-          <el-input
-            type="textarea"
-            :rows="4"
-            v-model="mergeRequestDescription"
-            placeholder="请输入合并请求的描述"
-            :disabled="isMrDescriptionDisabled"
-          />
-        </el-form-item>
-      </el-form>
+      <div class="merge-request-form">
+        <h3>提交合并请求</h3>
+        <el-form label-width="120px" :disabled="isFormDisabled">
+          <el-form-item label="目标分支" :error="targetBranchError">
+            <el-input
+              v-model="fullIntegrationTargetBranch"
+              placeholder="请输入目标分支名称"
+              @input="debouncedCheckBranch"
+            >
+              <template #suffix>
+                <el-icon v-if="isCheckingBranch" class="is-loading">
+                  <Loading />
+                </el-icon>
+              </template>
+              <template #append>
+                <el-button v-if="!fullIntegrationTargetBranch" @click="fillFromBaseline">使用基线分支</el-button>
+                <el-button v-if="targetBranchExists" @click="handleDeleteBranch" type="danger" plain>删除</el-button>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="合并请求描述">
+            <el-input
+              type="textarea"
+              :rows="16"
+              v-model="mergeRequestDescription"
+              placeholder="请输入合并请求的描述"
+              :disabled="isMrDescriptionDisabled"
+            />
+          </el-form-item>
+        </el-form>
+      </div>
+      <div class="footer-buttons">
+        <el-button
+          type="primary"
+          :loading="isSubmitting"
+          :disabled="isSubmitDisabled"
+          @click="submitMergeRequest"
+        >
+          提交
+        </el-button>
+        <el-button
+          :type="isAutoSubmitting ? 'danger' : 'success'"
+          :loading="isSubmitting"
+          :disabled="isAutoSubmitDisabled"
+          @click="toggleAutoSubmit"
+        >
+          {{ isAutoSubmitting ? '取消自动提交' : '打包后自动提交' }}
+        </el-button>
+      </div>
+    </template>
+    
+    <div v-else class="no-mr-info">
+        <el-alert
+            title="仅执行打包"
+            type="info"
+            description="由于未在上一提供整包集成基线分支，本次将仅执行打包流程，完成后不会创建合并请求。"
+            show-icon
+            :closable="false"
+        />
     </div>
-    <div class="footer-buttons">
-      <el-button
-        type="primary"
-        :loading="isSubmitting"
-        :disabled="isSubmitDisabled"
-        @click="submitMergeRequest"
-      >
-        提交
-      </el-button>
-      <el-button
-        :type="isAutoSubmitting ? 'danger' : 'success'"
-        :loading="isSubmitting"
-        :disabled="isAutoSubmitDisabled"
-        @click="toggleAutoSubmit"
-      >
-        {{ isAutoSubmitting ? '取消自动提交' : '打包后自动提交' }}
-      </el-button>
-    </div>
+
   </div>
 </template>
 
@@ -365,11 +374,12 @@ watch(fullIntegrationTargetBranch, (newVal, oldVal) => {
 }
 .stages {
   margin-top: 20px;
-  max-height: 200px;
-  overflow-y: auto;
 }
 .footer-buttons {
   text-align: center;
   margin-top: 20px;
+}
+.no-mr-info {
+    margin-top: 30px;
 }
 </style> 

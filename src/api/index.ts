@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: '/apex-integration/api',
+  baseURL: '/webhook/apex-integration/api',
 });
 
 export const getProducts = async () => {

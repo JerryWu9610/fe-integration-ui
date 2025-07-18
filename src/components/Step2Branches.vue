@@ -68,6 +68,15 @@ const searchFeBranches = async (queryString: string, cb: (arg: any) => void) => 
 };
 
 const checkBranchExists = async () => {
+  // New validation: Check if target branch is the same as baseline branch
+  if (store.createFeTargetBranch && store.feTargetBranch === store.feBaselineBranch) {
+    targetBranchError.value = '目标分支不能与基线分支同名，请直接使用基线分支。';
+    store.isFeTargetBranchValid = false;
+    isCheckingBranch.value = false;
+    store.isFeTargetBranchValidating = false;
+    return;
+  }
+
   // Loading state is set in debouncedCheckBranch
   try {
     const branches = await getFeIntegrationBranches(store.product, store.feTargetBranch);

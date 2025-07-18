@@ -43,11 +43,31 @@ const steps = shallowRef([
     <el-main>
       <el-card class="content-card">
         <el-steps :active="store.activeStep" finish-status="success" align-center>
-          <el-step title="选择产品" />
-          <el-step title="前端集成分支选择" />
-          <el-step title="业务包更新" />
-          <el-step title="整包集成分支选择" />
-          <el-step title="打包与提交整包集成" />
+            <el-step>
+                <template #title>
+                    <div class="step-title">选择产品</div>
+                </template>
+            </el-step>
+            <el-step>
+                <template #title>
+                    <div class="step-title">前端集成分支选择</div>
+                </template>
+            </el-step>
+            <el-step>
+                <template #title>
+                    <div class="step-title">业务包更新</div>
+                </template>
+            </el-step>
+            <el-step>
+                <template #title>
+                    <div class="step-title">整包集成分支选择<br>前端打包</div>
+                </template>
+            </el-step>
+            <el-step>
+                <template #title>
+                    <div class="step-title">整包集成</div>
+                </template>
+            </el-step>
         </el-steps>
 
         <div class="step-content">
@@ -102,7 +122,7 @@ const steps = shallowRef([
 }
 
 .step-content {
-  margin-top: 40px;
+  margin-top: 16px;
   min-height: 350px;
   padding: 20px 0;
 }
@@ -110,5 +130,8 @@ const steps = shallowRef([
 .footer-buttons {
   text-align: center;
   padding-top: 30px;
+}
+.step-title {
+  line-height: 1.2;
 }
 </style>

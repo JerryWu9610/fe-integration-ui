@@ -38,44 +38,49 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-collapse v-model="activeCollapseNames" v-loading="changesLoading">
-              <el-collapse-item title="查看变更" :name="pkg.repoName">
-                <div v-if="store.businessRepoChanges[pkg.repoName]">
-                  <div v-if="store.businessRepoChanges[pkg.repoName].newCommits?.length > 0">
-                    <h4>新增 Commits:</h4>
-                    <ul class="commit-list">
-                      <li v-for="commit in store.businessRepoChanges[pkg.repoName].newCommits" :key="commit.short_id" class="commit-item">
-                        <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
-                      </li>
-                    </ul>
-                  </div>
-                  <div v-if="store.businessRepoChanges[pkg.repoName].removedCommits?.length > 0">
-                    <h4>移除 Commits:</h4>
-                    <ul class="commit-list">
-                      <li v-for="commit in store.businessRepoChanges[pkg.repoName].removedCommits" :key="commit.short_id" class="commit-item">
-                        <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
-                      </li>
-                    </ul>
-                  </div>
-                   <div v-if="!store.businessRepoChanges[pkg.repoName].newCommits?.length && !store.businessRepoChanges[pkg.repoName].removedCommits?.length">
-                    <p>没有检测到 Commit 变更。</p>
-                  </div>
-                </div>
-                <div v-else>
-                   <p>暂无变更信息。</p>
-                </div>
-              </el-collapse-item>
-            </el-collapse>
           </div>
         </el-card>
       </el-form>
+
+      <el-divider />
+      <h3>变更总览</h3>
+      <div v-if="hasChanges" v-loading="changesLoading">
+        <el-collapse v-model="activeCollapseNames">
+          <el-collapse-item
+            v-for="change in visibleChanges"
+            :key="change.repoName"
+            :title="change.repoName"
+            :name="change.repoName"
+          >
+            <div v-if="change.newCommits?.length > 0">
+              <h4>新增 Commits:</h4>
+              <ul class="commit-list">
+                <li v-for="commit in change.newCommits" :key="commit.short_id" class="commit-item">
+                  <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
+                </li>
+              </ul>
+            </div>
+            <div v-if="change.removedCommits?.length > 0">
+              <h4>移除 Commits:</h4>
+              <ul class="commit-list">
+                <li v-for="commit in change.removedCommits" :key="commit.short_id" class="commit-item">
+                  <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
+                </li>
+              </ul>
+            </div>
+          </el-collapse-item>
+        </el-collapse>
+      </div>
+      <div v-else>
+        <p>所有选中的业务包均无版本或 Commit 变更。</p>
+      </div>
     </div>
     <el-empty v-if="!loading && store.businessPackages.length === 0" description="未能获取到业务包信息，请检查基线分支是否正确。" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useIntegrationStore } from '@/store/integration';
 import { searchBusinessPkg } from '@/api';
 import { ElMessage } from 'element-plus';
@@ -173,6 +178,18 @@ const fetchAndUpdateLatestVersions = async () => {
   });
   await Promise.all(promises);
 };
+
+const hasChanges = computed(() => {
+  return Object.values(store.businessRepoChanges).some(
+    change => (change.newCommits?.length > 0 || change.removedCommits?.length > 0)
+  );
+});
+
+const visibleChanges = computed(() => {
+    return Object.values(store.businessRepoChanges).filter(
+        change => (change.newCommits?.length > 0 || change.removedCommits?.length > 0)
+    );
+});
 
 onMounted(async () => {
   loading.value = true;

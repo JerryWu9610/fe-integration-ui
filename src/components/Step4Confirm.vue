@@ -4,8 +4,9 @@
       <el-form-item label="整包集成基线分支">
         <el-select
           v-model="fullIntegrationBaselineBranch"
-          placeholder="请选择或输入基线分支"
+          placeholder="可选：请选择或输入基线分支以查看变更"
           filterable
+          clearable
           remote
           :remote-method="searchFullIntegrationBranches"
           :loading="branchSearchLoading"
@@ -20,7 +21,7 @@
       </el-form-item>
     </el-form>
 
-    <div v-if="commitChanges.length > 0" class="commit-changes">
+    <div v-if="fullIntegrationBaselineBranch && commitChanges.length > 0" class="commit-changes">
       <h3>业务仓库变更对比：</h3>
       <el-collapse v-model="activeCollapse">
         <el-collapse-item
@@ -65,13 +66,17 @@
         </el-collapse-item>
       </el-collapse>
     </div>
+    <div v-if="fullIntegrationBaselineBranch && !commitChanges.length" class="commit-changes">
+        <p>未检测到业务仓库的 Commit 变更。</p>
+    </div>
+
 
     <div class="footer-buttons">
       <el-button
         type="primary"
         @click="submitIntegration"
         :loading="isSubmitting"
-        :disabled="!fullIntegrationBaselineBranch || isSubmitting"
+        :disabled="isSubmitting"
       >
         提交并触发打包
       </el-button>
@@ -156,6 +161,11 @@ const isSubmitting = ref(false);
 
 const submitIntegration = async () => {
   isSubmitting.value = true;
+  // Clear changes if baseline is empty, so step 5 knows not to show MR info
+  if (!fullIntegrationBaselineBranch.value) {
+    store.fullIntegrationRepoChanges = [];
+  }
+  
   try {
     const payload = {
       product: product.value,
