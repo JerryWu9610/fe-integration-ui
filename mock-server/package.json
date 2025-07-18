@@ -1,0 +1,18 @@
+{
+  "name": "mock-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "mock": "fe-dev-server serve"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "fe-dev-server-cli": "^0.0.17",
+    "fe-dev-server-core": "^0.0.16",
+    "fe-dev-server-plugin-mock": "^0.0.22",
+    "fe-dev-server-plugin-proxy": "^0.0.21"
+  }
+}

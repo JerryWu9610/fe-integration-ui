@@ -1,0 +1,45 @@
+:root {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: #303133; /* Element Plus Primary Text Color */
+  background-color: #f5f7fa; /* A light grey background */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2em; /* Adjusted for better proportion */
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Remove the default button styles to let Element Plus take full control */
+button {
+  border-radius: 4px; /* A more subtle border-radius */
+}
