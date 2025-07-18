@@ -44,35 +44,35 @@
 
       <el-divider />
       <h3>变更总览</h3>
-      <div v-if="hasChanges" v-loading="changesLoading">
-        <el-collapse v-model="activeCollapseNames">
-          <el-collapse-item
-            v-for="change in visibleChanges"
-            :key="change.repoName"
-            :title="change.repoName"
-            :name="change.repoName"
-          >
-            <div v-if="change.newCommits?.length > 0">
-              <h4>新增 Commits:</h4>
-              <ul class="commit-list">
-                <li v-for="commit in change.newCommits" :key="commit.short_id" class="commit-item">
-                  <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
-                </li>
-              </ul>
-            </div>
-            <div v-if="change.removedCommits?.length > 0">
-              <h4>移除 Commits:</h4>
-              <ul class="commit-list">
-                <li v-for="commit in change.removedCommits" :key="commit.short_id" class="commit-item">
-                  <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
-                </li>
-              </ul>
-            </div>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
-      <div v-else>
-        <p>所有选中的业务包均无版本或 Commit 变更。</p>
+      <div v-loading="changesLoading" class="changes-overview">
+        <div v-if="!changesLoading">
+          <el-collapse v-if="hasChanges" v-model="activeCollapseNames">
+            <el-collapse-item
+              v-for="change in visibleChanges"
+              :key="change.repoName"
+              :title="change.repoName"
+              :name="change.repoName"
+            >
+              <div v-if="change.newCommits?.length > 0">
+                <h4>新增 Commits:</h4>
+                <ul class="commit-list">
+                  <li v-for="commit in change.newCommits" :key="commit.short_id" class="commit-item">
+                    <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
+                  </li>
+                </ul>
+              </div>
+              <div v-if="change.removedCommits?.length > 0">
+                <h4>移除 Commits:</h4>
+                <ul class="commit-list">
+                  <li v-for="commit in change.removedCommits" :key="commit.short_id" class="commit-item">
+                    <span class="commit-id">{{ commit.short_id }}</span> - {{ commit.title }} ({{ commit.author_name }})
+                  </li>
+                </ul>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+          <p v-else>所有选中的业务包均无版本或 Commit 变更。</p>
+        </div>
       </div>
     </div>
     <el-empty v-if="!loading && store.businessPackages.length === 0" description="未能获取到业务包信息，请检查基线分支是否正确。" />
@@ -221,5 +221,8 @@ onMounted(async () => {
 .commit-id {
   color: #409EFF;
   font-weight: bold;
+}
+.changes-overview {
+  min-height: 100px;
 }
 </style> 
