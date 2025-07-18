@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef, computed } from 'vue';
+import { shallowRef, computed, watch, onMounted } from 'vue';
 import { useIntegrationStore } from '@/store/integration';
 import Step1Product from './components/Step1Product.vue';
 import Step2Branches from './components/Step2Branches.vue';
@@ -8,6 +8,17 @@ import Step4Confirm from './components/Step4Confirm.vue';
 import Step5Pack from './components/Step5Pack.vue';
 
 const store = useIntegrationStore();
+
+onMounted(() => {
+  const savedTriggeredBy = localStorage.getItem('triggeredBy');
+  if (savedTriggeredBy) {
+    store.triggeredBy = savedTriggeredBy;
+  }
+});
+
+watch(() => store.triggeredBy, (newValue) => {
+  localStorage.setItem('triggeredBy', newValue);
+});
 
 const isNextStepEnabled = computed(() => {
   const step = store.activeStep;
@@ -40,6 +51,14 @@ const steps = shallowRef([
 
 <template>
   <el-container class="main-container">
+    <el-header class="app-header">
+      <h1>开发集成流程</h1>
+      <div class="user-input">
+        <el-input v-model="store.triggeredBy" placeholder="请输入你的名字" clearable>
+          <template #prepend>操作人</template>
+        </el-input>
+      </div>
+    </el-header>
     <el-main>
       <el-card class="content-card">
         <el-steps :active="store.activeStep" finish-status="success" align-center>
@@ -102,6 +121,17 @@ const steps = shallowRef([
 .el-header h1 {
   color: #303133;
   font-weight: 600;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.user-input {
+  width: 250px;
 }
 
 .el-main {

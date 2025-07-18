@@ -41,6 +41,9 @@ export const useIntegrationStore = defineStore('integration', {
     mergeRequestDescription: '',
     pipelineHistoryId: '',
     autoCommitRequestId: '',
+
+    // Global
+    triggeredBy: '',
   }),
 
   getters: {

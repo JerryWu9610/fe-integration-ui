@@ -178,6 +178,7 @@ const submitIntegration = async () => {
       baselineBranch: store.feBaselineBranch,
       targetBranch: store.feTargetBranch,
       businessRepo: updatedBusinessPackages.value,
+      triggeredBy: store.triggeredBy, // Add triggeredBy
     };
     const response = await commitFeIntegrationAndPack(payload);
     store.pipelineHistoryId = response.pipelineHistoryId;

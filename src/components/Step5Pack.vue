@@ -277,6 +277,7 @@ const submitMergeRequest = async () => {
       baselineBranch: fullIntegrationBaselineBranch.value,
       targetBranch: fullIntegrationTargetBranch.value,
       mergeRequestDescription: mergeRequestDescription.value,
+      triggeredBy: store.triggeredBy, // Add triggeredBy
       feIntegration: {
         ref: store.feTargetBranch,
         commitId: feIntegrationCommitId.value,
@@ -323,6 +324,7 @@ const toggleAutoSubmit = async () => {
         targetBranch: fullIntegrationTargetBranch.value,
         mergeRequestDescription: mergeRequestDescription.value,
         pipelineHistoryId: pipelineHistoryId.value,
+        triggeredBy: store.triggeredBy, // Add triggeredBy
         feIntegration: {
           ref: store.feTargetBranch,
           commitId: feIntegrationCommitId.value,
